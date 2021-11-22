@@ -8,7 +8,8 @@ class ScienceDirect:
     def __init__(self):
         self.query = CONFIG.get("search_query")
         with open("D://scopus_key.txt", "r") as f:
-            self.key = f.read().strip()
+            self.key = f.readline().strip()
+            self.insttoken = f.readline().strip()
 
     def get_next(self, links):
         for link in links:
@@ -26,7 +27,7 @@ class ScienceDirect:
         url = self.get_url()
         flag = 1
         start = 0
-        hit_url = url.format(start, self.query, self.key)
+        hit_url = url.format(start, self.query, self.key, self.insttoken)
         rainy_day_var = hit_url
         df = pd.DataFrame()
         while flag > 0:
@@ -48,11 +49,11 @@ class ScienceDirect:
             except:
                 # hit_url = rainy_day_var
                 pass
-        df.to_csv("SCOPUS_search_results.csv")
+        df.to_csv("Science_direct_search_results.csv")
 
     def get_url(self):
         url = "https://api.elsevier.com/content/search/sciencedirect?start={}&count=25" \
-              "&query={}&apiKey={}&httpAccept=application%2Fjson"
+              "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         return url
 
     def get(self, hit_url):
