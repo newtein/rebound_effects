@@ -75,7 +75,8 @@ class Searcher:
 
 
 if __name__ == '__main__':
-    obj = Searcher("scopus", "docs_scopus")
+    # obj = Searcher("scopus", "docs_scopus")
+    obj = Searcher("science_direct", "docs_sd")
     obj.search()
 
 
