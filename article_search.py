@@ -4,8 +4,9 @@ import pandas as pd
 import time
 
 
-class ScienceDirect:
-    def __init__(self):
+class ArticleSearch:
+    def __init__(self, database):
+        self.database = database
         self.query = CONFIG.get("search_query")
         with open("D://scopus_key.txt", "r") as f:
             self.key = f.readline().strip()
@@ -40,21 +41,21 @@ class ScienceDirect:
                 links = result.get("search-results", {}).get("link")
                 next = self.get_next(links)
                 last = self.get_last(links)
-                # if next == last:
-                #     flag = 0
-                #     break
                 hit_url = next
                 rainy_day_var = hit_url
-                time.sleep(2)
+                time.sleep(4)
             except Exception as e:
-                # hit_url = rainy_day_var
                 flag = 0
                 print(e)
-        df.to_csv("science_direct_search_results.csv")
+        df.to_csv("{}_search_results.csv".format(self.database))
 
     def get_url(self):
-        url = "https://api.elsevier.com/content/search/sciencedirect?start={}&count=25" \
-              "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
+        if self.database == 'science_direct':
+            url = "https://api.elsevier.com/content/search/sciencedirect?start={}&count=25" \
+                  "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
+        elif self.database == 'scopus':
+            url = "https://api.elsevier.com/content/search/scopus?start={}&count=25" \
+                  "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         return url
 
     def get(self, hit_url):
@@ -63,7 +64,7 @@ class ScienceDirect:
 
 
 if __name__ == '__main__':
-    obj = ScienceDirect()
+    obj = ArticleSearch('scopus')
     obj.search()
 
 
