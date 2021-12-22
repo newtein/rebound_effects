@@ -7,11 +7,12 @@ import urllib.request as urllib2
 import re
 
 
-class ArticleSearch:
-    def __init__(self, database, query, fname):
+class GetTotal:
+    def __init__(self, database, query, fname, fetch_all):
         self.database = database
         self.query = query
         self.fname = fname
+        self.fetch_all = fetch_all
 
         with open("D://scopus_key.txt", "r") as f:
             self.key = f.readline().strip()
@@ -39,23 +40,31 @@ class ArticleSearch:
             try:
                 print(hit_url)
                 result = self.get(hit_url)
-                print(result.get("search-results", {}).get("opensearch:startIndex"))
-                t_df = pd.DataFrame.from_dict(result.get('search-results', {}).get("entry"))
-                df = df.append(t_df)
-                links = result.get("search-results", {}).get("link")
-                next = self.get_next(links)
-                hit_url = next
-                time.sleep(4)
+                total_results = result.get("search-results", {}).get('opensearch:totalResults')
+                # print(result.get("search-results", {}).get("opensearch:startIndex"))
+                if not self.fetch_all:
+                    flag = 0
+                else:
+                    t_df = pd.DataFrame.from_dict(result.get('search-results', {}).get("entry"))
+                    df = df.append(t_df)
+                    links = result.get("search-results", {}).get("link")
+                    next = self.get_next(links)
+                    if next == hit_url:
+                        flag = 0
+                    else:
+                        hit_url = next
+                    time.sleep(4)
             except Exception as e:
                 flag = 0
                 print(e)
-                print(hit_url)
-
-        df.to_csv(self.fname)
+                # print(hit_url)
+        if self.fetch_all:
+            df.to_csv(self.fname)
+        return total_results
 
     def get_url(self):
         if self.database == 'science_direct':
-            url = "https://api.elsevier.com/content/search/sciencedirect?start={}&count=25" \
+            url = "https://api.elsevier.com/content/search/sciencedirect?start={}&cursor=*&count=25" \
                   "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         elif self.database == 'scopus':
             url = "https://api.elsevier.com/content/search/scopus?start={}&cursor=*&count=25" \
@@ -71,6 +80,7 @@ class ArticleSearch:
 
 if __name__ == '__main__':
     database = sys.argv[1]
+    fetch_all = sys.argv[2]
     search_terms = CONFIG.get("{}_search_queries".format(database))
     print(search_terms)
     replace_quotes = {
@@ -83,7 +93,7 @@ if __name__ == '__main__':
         for i, j in replace_quotes.items():
             search_term = search_term.replace(i, j)
         print("Begin {}".format(search_term))
-        obj = ArticleSearch(database, search_term, fname)
+        obj = GetTotal(database, search_term, fname, fetch_all)
         obj.search()
         print("Completed {}".format(search_term))
 
