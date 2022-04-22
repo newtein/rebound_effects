@@ -59,7 +59,7 @@ class ArticleSearch:
                   "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         elif self.database == 'scopus':
             url = "https://api.elsevier.com/content/search/scopus?start={}&cursor=*&count=25" \
-                  "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
+                  "&query=TITLE-ABS-KEY({})&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         return url
 
     def get(self, hit_url):

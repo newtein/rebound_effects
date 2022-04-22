@@ -8,11 +8,12 @@ import re
 
 
 class GetTotal:
-    def __init__(self, database, query, fname, fetch_all):
+    def __init__(self, database, query, fname, fetch_all, year):
         self.database = database
         self.query = query
         self.fname = fname
         self.fetch_all = fetch_all
+        self.year = year
 
         with open("C://Keys/scopus_key.txt", "r") as f:
             self.key = f.readline().strip()
@@ -34,7 +35,7 @@ class GetTotal:
         url = self.get_url()
         flag = 1
         start = 0
-        hit_url = url.format(start, self.query, self.key, self.insttoken)
+        hit_url = url.format(self.year, start, self.query, self.key, self.insttoken)
         df = pd.DataFrame()
         while flag > 0:
             try:
@@ -64,11 +65,11 @@ class GetTotal:
 
     def get_url(self):
         if self.database == 'science_direct':
-            url = "https://api.elsevier.com/content/search/sciencedirect?start={}&cursor=*&count=25" \
+            url = "https://api.elsevier.com/content/search/sciencedirect?date={}&start={}&cursor=*&count=25" \
                   "&query={}&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
             # url = "https://api.elsevier.com/content/search/sciencedirect"
         elif self.database == 'scopus':
-            url = "https://api.elsevier.com/content/search/scopus?start={}&cursor=*&count=25" \
+            url = "https://api.elsevier.com/content/search/scopus?date={}&start={}&cursor=*&count=25" \
                   "&query=TITLE-ABS-KEY({})&apiKey={}&httpAccept=application%2Fjson&insttoken={}"
         return url
 
@@ -99,8 +100,10 @@ if __name__ == '__main__':
         for i, j in replace_quotes.items():
             search_term = search_term.replace(i, j)
         print("Begin {}".format(search_term))
-        obj = GetTotal(database, search_term, fname, fetch_all)
-        obj.search()
+        for year in ['2015-2016', '2016-2017', '2017-2018', '2018-2019', '2019-2020', '2020-2021', '2021-2022']:
+            print(year)
+            obj = GetTotal(database, search_term, fname, fetch_all, year)
+            obj.search()
         print("Completed {}".format(search_term))
 
 

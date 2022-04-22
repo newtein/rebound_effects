@@ -26,13 +26,17 @@ class PlotWords:
         return s.strip().split()
 
     def plot(self, text):
+        #plt.subplots(figsize=(20, 10))
         text = " ".join(text)
-        wordcloud = WordCloud(background_color='white', stopwords=STOPWORDS).generate(text)
+        wordcloud = WordCloud(width=1000, height=500, background_color='white', stopwords=STOPWORDS).generate(text)
         plt.imshow(wordcloud, interpolation='bilinear')
-        title = database.replace("_", " ").upper()
+        if database == 'scopus':
+            title = database.upper()
+        else:
+            title='ScienceDirect'
         plt.title(title)
         plt.axis("off")
-        plt.savefig("output_images/{}.png".format(database), bbox_inches='tight')
+        plt.savefig("output_images/{}.png".format(database), bbox_inches='tight', dpi=2000)
 
     def search(self):
         full_text = []
