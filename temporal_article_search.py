@@ -35,7 +35,7 @@ class GetTotal:
         url = self.get_url()
         flag = 1
         start = 0
-        hit_url = url.format(self.year, start, self.query, self.key, self.insttoken)
+        hit_url = url.format(self.year.split('-')[0], start, self.query, self.key, self.insttoken)
         df = pd.DataFrame()
         while flag > 0:
             try:

@@ -1,4 +1,5 @@
 from temporal_article_search import GetTotal
+from arm_meta_data_api import IEEE
 import time
 import sys
 import pandas as pd
@@ -24,8 +25,24 @@ class TemporalPatterns:
         '"smart home*" AND "energy efficien*"',
         '"smart home*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
         '"energy efficien*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
-        '"energy efficien*" AND "smart home*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
-        ]
+        '"energy efficien*" AND "smart home*" AND ("rebound effect*" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+        ],
+
+  #           "ieee": ['"smart home*"',
+  #       '"energy efficien*"',
+  #       '("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+  #       '"smart home*" AND "energy efficien*"',
+  #       '"smart home*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+  #       '"energy efficien*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+  #       '"energy efficien*" AND "smart home*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+  # ]
+            "ieee": [
+                     '"smart home*" AND "energy efficien*"',
+                     '"energy efficien*" AND "smart home*" AND ("rebound effect" OR "rebound effects" OR "jevons paradox" OR "khazzoom-brookes postulate")',
+
+'
+                     ]
+
         }
         self.science_direct_search_queries = self.search_strings.get(database)
         self.search_labels = ["S", "E", "R", "ES", "SR", "ER", "ESR"]
@@ -38,7 +55,10 @@ class TemporalPatterns:
         for search_term, search_label in zip(self.science_direct_search_queries, self.search_labels):
             for year in club_years:
                 print(year)
-                obj = GetTotal(database, search_term, "{}_all.csv".format(database), 0, year)
+                if database in ['science_direct', 'scopus']:
+                    obj = GetTotal(database, search_term, "{}_all.csv".format(database), 0, year)
+                elif database in ['ieee']:
+                    obj = IEEE(search_term, year)
                 print(search_label, obj.search())
                 time.sleep(2)
                 rows.append([year, search_label, obj.search()])
